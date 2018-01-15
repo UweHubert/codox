@@ -151,11 +151,14 @@
   (second (re-find #"/([^/]+?)$" path)))
 
 (defn- var-source-uri
-  [{:keys [source-uri version]}
+  [{:keys [source-uri version git-commit]}
    {:keys [path file line]}]
   (let [path (util/uri-path path)
-        uri  (if (map? source-uri) (get-source-uri source-uri path) source-uri)]
-    (-> uri
+        uri  (if (map? source-uri) (get-source-uri source-uri path) source-uri)
+        gc   "{git-commit}"
+        uri* (cond-> uri
+               (and (string? uri) (.contains uri gc)) (str/replace gc @git-commit))]
+    (-> uri*
         (str/replace "{filepath}"  path)
         (str/replace "{classpath}" (util/uri-path file))
         (str/replace "{basename}"  (uri-basename path))

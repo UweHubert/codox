@@ -11,7 +11,7 @@
       :name "Example Project"
       :description "FIXME: write description"
       :version "1.0.0"
-      :source-uri "https://github.com/weavejester/codox/blob/{version}/codox.example/{filepath}#L{basename}-{line}"
+      :source-uri "https://github.com/weavejester/codox/blob/{git-commit}/example/{filepath}#L{basename}-{line}"
       :exclude-vars #"foo.*"
       :themes [[:test {:test-message "Test! Test! "}]])
     (target)))

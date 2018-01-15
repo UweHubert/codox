@@ -14,7 +14,7 @@
    :doc-files ["doc/intro.md"
                "doc/formatting.md"]
    :source-uri
-   "https://github.com/weavejester/codox/blob/{version}/codox.example/{filepath}#L{basename}-{line}"
+   "https://github.com/weavejester/codox/blob/{git-commit}/example/{filepath}#L{basename}-{line}"
    :html
    {:transforms [[:head] [:prepend [:script "console.log('hello');"]]
                  [:head] [:append  [:script "console.log('world');"]]
