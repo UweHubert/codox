@@ -1,7 +1,9 @@
 (ns codox.main
   "Main namespace for generating documentation"
   (:use [codox.utils :only (add-source-paths)])
-  (:require [codox.reader.clojure :as clj]
+  (:require [clojure.string :as str]
+            [clojure.java.shell :as shell]
+            [codox.reader.clojure :as clj]
             [codox.reader.plaintext :as text]))
 
 (defn- writer [{:keys [writer]}]
@@ -91,17 +93,41 @@
                                (apply text/read-documents)
                                (sort-by :name))))
 
+(defn- git-commit-id [dir]
+  (let [res  (try
+               (shell/sh "git" "rev-parse" "HEAD"
+                         :dir dir)
+               (catch Throwable t
+                 {:exit -1
+                  :err  (.getMessage t)}))
+        exit (:exit res)
+        err  (:err res)
+        err  (if-not (str/blank? err)
+               err
+               (when-not (zero? exit)
+                 (str "exit code " exit)))
+        out  (if err
+               ""
+               (-> res :out (str/trim)))]
+    (if err
+      (println "Warning: error while calling Git:" err)
+      (when (str/blank? out)
+        (println "Warning: retrieved empty Git commit id.")))
+    out))
+
 (def defaults
-  {:language     :clojure
-   :root-path    (System/getProperty "user.dir")
-   :output-path  "target/doc"
-   :source-paths ["src"]
-   :doc-paths    ["doc"]
-   :doc-files    :all
-   :namespaces   :all
-   :exclude-vars #"^(map)?->\p{Upper}"
-   :metadata     {}
-   :themes       [:default]})
+  (let [root-path (System/getProperty "user.dir")]
+    {:language      :clojure
+     :root-path     root-path
+     :output-path   "target/doc"
+     :source-paths  ["src"]
+     :doc-paths     ["doc"]
+     :doc-files     :all
+     :namespaces    :all
+     :exclude-vars  #"^(map)?->\p{Upper}"
+     :metadata      {}
+     :themes        [:default]
+     :git-commit-id (git-commit-id root-path)}))
 
 (defn generate-docs
   "Generate documentation from source files."

@@ -151,16 +151,17 @@
   (second (re-find #"/([^/]+?)$" path)))
 
 (defn- var-source-uri
-  [{:keys [source-uri version]}
+  [{:keys [source-uri version git-commit-id]}
    {:keys [path file line]}]
   (let [path (util/uri-path path)
         uri  (if (map? source-uri) (get-source-uri source-uri path) source-uri)]
     (-> uri
-        (str/replace "{filepath}"  path)
-        (str/replace "{classpath}" (util/uri-path file))
-        (str/replace "{basename}"  (uri-basename path))
-        (str/replace "{line}"      (str line))
-        (str/replace "{version}"   version))))
+        (str/replace "{filepath}"      path)
+        (str/replace "{classpath}"     (util/uri-path file))
+        (str/replace "{basename}"      (uri-basename path))
+        (str/replace "{line}"          (str line))
+        (str/replace "{version}"       version)
+        (str/replace "{git-commit-id}" git-commit-id))))
 
 (defn- split-ns [namespace]
   (str/split (str namespace) #"\."))
